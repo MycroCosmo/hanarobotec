@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>(주)하나로보텍 | HANAROBOTECH</title>
+<style>
+        :root {
+            --point-orange: #f58220;
+            --main-dark: #231f20;
+            --text-gray: #595959;
+            --light-bg: #f4f4f4;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Pretendard', sans-serif; }
+        body { line-height: 1.8; color: var(--main-dark); word-break: keep-all; }
+        li { list-style: none; }
+        a { text-decoration: none; color: inherit; }
+
+        /* Navigation */
+        nav { position: fixed; width: 100%; background: #fff; padding: 15px 8%; display: flex; justify-content: space-between; align-items: center; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .nav-logo img { height: 60px; vertical-align: middle; }
+        nav ul { display: flex; }
+        nav ul li { margin-left: 35px; font-weight: 600; font-size: 15px; }
+        nav ul li a:hover { color: var(--point-orange); }
+
+        /* Hero Section */
+        .hero { height: 70vh; background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1920&q=80'); background-size: cover; background-position: center; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; }
+        .hero h2 { font-size: 1.4rem; font-weight: 300; margin-bottom: 20px; letter-spacing: 2px; }
+        .hero h1 { font-size: 4rem; font-weight: 800; margin-bottom: 30px; }
+        .hero .desc { font-size: 1.3rem; opacity: 0.9; }
+
+        /* Common Section */
+        section { padding: 100px 10%; }
+        .section-title { text-align: center; margin-bottom: 80px; }
+        .section-title h3 { font-size: 3rem; color: var(--main-dark); margin-bottom: 15px; position: relative; padding-bottom: 20px; }
+        .section-title h3::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 60px; height: 4px; background: var(--point-orange); }
+
+        /* CEO Message */
+        .ceo-msg { background: var(--light-bg); padding: 100px 15%; text-align: center; }
+        .ceo-content h4 { font-size: 2.4rem; margin-bottom: 40px; color: var(--point-orange); font-weight: 800; }
+        .ceo-content p { font-size: 1.3rem; color: var(--text-gray); max-width: 1000px; margin: 0 auto 40px; text-align: center; line-height: 2.2; }
+        .signature { font-size: 1.5rem; font-weight: 800; color: #000; }
+
+        /* Vision & Value */
+        .vision-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px; }
+        .vision-item { 
+            background: #fff; 
+            border: 2px solid #f0f0f0; 
+            border-radius: 30px; 
+            overflow: hidden; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.03);
+            transition: 0.3s;
+        }
+        .vision-item:hover { transform: translateY(-10px); border-color: var(--point-orange); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .vision-img { width: 100%; height: 220px; object-fit: cover; } 
+        .vision-content { padding: 40px 30px; text-align: center; }
+        .vision-item h5 { font-size: 1.8rem; margin-bottom: 15px; color: var(--point-orange); font-weight: 900; }
+        .vision-item p { font-size: 1.3rem; font-weight: 700; color: #333; line-height: 1.5; }
+
+        /* Business Area */
+        .biz-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 30px; }
+        .biz-item {
+            background: #fff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: 0.3s;
+        }
+        .biz-item:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+        .biz-img { width: 100%; height: 280px; object-fit: cover; }
+        .biz-content { padding: 40px; text-align: center; }
+        .biz-item h4 { font-size: 2rem; margin-bottom: 20px; color: var(--point-orange); font-weight: 800; }
+        .biz-item p { font-size: 1.15rem; color: var(--text-gray); }
+
+        /* Tech Partners */
+        .tech-container { margin-top: 150px; text-align: center; }
+        .tech-title { margin-bottom: 70px; color: var(--main-dark); font-size: 2.5rem; font-weight: 900; }
+        .tech-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 50px; max-width: 1400px; margin: 0 auto; }
+        .tech-item { height: 450px; padding: 60px; background: #fff; border: 1px solid #ddd; border-radius: 30px; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: 0.4s; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .tech-item:hover { transform: translateY(-15px); border-color: var(--point-orange); box-shadow: 0 30px 60px rgba(0,0,0,0.12); }
+        .tech-item img { width: 100%; max-height: 280px; object-fit: contain; margin-bottom: 30px; }
+        .tech-item span { display: block; font-size: 26px; font-weight: 900; color: #111; letter-spacing: 2px; }
+
+        /* --- History & Business Results (통합 스타일) --- */
+        #history { background-color: #fff; padding: 100px 10%; }
+        
+        /* 사업 실적 스크롤 박스 */
+        .history-wrapper { max-width: 1200px; margin: 0 auto 80px; }
+        .history-scroll-box {
+            padding: 20px 0;
+            background: transparent;
+            box-shadow: none;
+            max-height: none;
+            overflow-y: visible;
+        }
+
+        .year-block { 
+            margin-bottom: 80px; 
+            position: relative;
+            padding-left: 40px;
+            border-left: 2px solid var(--border-light);
+        }
+        
+        /* 타임라인 포인트 */
+        .year-block::before {
+            content: '';
+            position: absolute;
+            left: -9px;
+            top: 0;
+            width: 16px;
+            height: 16px;
+            background: var(--point-orange);
+            border-radius: 50%;
+        }
+
+        .y-title {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--main-dark);
+            margin-bottom: 30px;
+            line-height: 1;
+        }
+
+        .y-item {
+            display: flex;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-light);
+            align-items: center;
+            transition: 0.3s;
+        }
+        .y-item:last-child { border-bottom: none; }
+        .y-item:hover { transform: translateX(10px); color: var(--point-orange); }
+
+        .y-item span { min-width: 110px; font-weight: 800; color: #999; font-size: 1.1rem; }
+        .y-item strong { min-width: 200px; color: var(--main-dark); font-weight: 800; margin-right: 25px; letter-spacing: -0.5px; }
+
+        /* 주요 연혁 카드 그리드 보정 */
+        .corporate-history { 
+            margin-top: 50px;
+            background: var(--light-bg);
+            padding: 60px 40px;
+            border-radius: 30px;
+        }
+        .history-card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        .history-card {
+            background: #fff;
+            padding: 30px;
+            border-radius: 20px;
+            border-bottom: 5px solid var(--point-orange);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            transition: 0.4s;
+        }
+        .history-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .history-card .h-year { font-size: 1.3rem; font-weight: 900; color: var(--point-orange); margin-bottom: 12px; }
+        .history-card .h-desc { font-size: 1.1rem; font-weight: 700; color: var(--main-dark); line-height: 1.5; }
+
+        /* Footer */
+        footer { background: #1a1a1a; color: #999; padding: 100px 10%; font-size: 1.1rem; border-top: 1px solid #333; }
+        .f-container { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 40px; }
+        .f-logo img { height: 60px; margin-bottom: 30px; filter: brightness(0) invert(1); }
+        .f-info p { margin-bottom: 10px; }
+        .f-right { text-align: right; }
+
+        @media (max-width: 768px) {
+            section { padding: 80px 5%; }
+            .hero h1 { font-size: 2.5rem; }
+            .y-item { flex-direction: column; align-items: flex-start; padding: 20px 0; }
+            .y-item span { margin-bottom: 5px; }
+            .y-item strong { margin-bottom: 5px; color: var(--point-orange); }
+            .year-block { padding-left: 25px; }
+            .f-right { text-align: left; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="#home" class="nav-logo">
+        <img src="logo.png" alt="하나로보텍 로고">
+    </a>
+    <ul>
+        <li><a href="#about">인사말</a></li>
+        <li><a href="#vision">기업이념</a></li>
+        <li><a href="#business">사업소개</a></li>
+        <li><a href="#history">실적/연혁</a></li>
+    </ul>
+</nav>
+
+<section id="home" class="hero">
+    <video autoplay muted loop playsinline class="hero-video">
+        <source src="videos/robot_bg.mp4" type="video/mp4">
+        <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1920&q=80" alt="background">
+    </video>
+
+    <div class="hero-overlay"></div>
+
+    <div class="hero-content">
+        <h2>CREATIVE THINKING & INNOVATION</h2>
+        <h1>(주)하나로보텍</h1>
+        <p class="desc">창의적 사고와 혁신 기술로 더 나은 미래를 꿈꾸는 ROBOT SYSTEM 전문 기업</p>
+    </div>
+</section>
+
+<section id="about" class="ceo-msg">
+    <div class="ceo-content">
+        <h4>"사용자의 입장에서 생각하고 고민합니다"</h4>
+        <p>
+            새 천년을 맞이한 시점에 로봇을 이용한 자동화 요구는 날로 증가하고 있습니다. <br>
+            ㈜하나로보텍은 종합 자동화 시스템 업체로 고객사의 효율적인 생산량 증대에 이바지하는 것을 최우선 목표로합니다. <br>
+            전 직원이 끊임없는 연구개발을 통해 사용자가 요구하는 시스템 그 이상의 가치를 제공하겠습니다.
+        </p>
+        <p class="signature">대표이사 임 승 훈</p>
+    </div>
+</section>
+
+<section id="vision">
+    <div class="section-title">
+        <h3>글로벌 비전 2026</h3>
+    </div>
+    <div class="vision-grid">
+        <div class="vision-item">
+            <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80" alt="성장 그래프" class="vision-img">
+            <div class="vision-content">
+                <h5>핵심 목표</h5>
+                <p>자동화 시스템 분야<br>국내 3대 브랜드 진입</p>
+            </div>
+        </div>
+        <div class="vision-item">
+            <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80" alt="마이크로칩" class="vision-img">
+            <div class="vision-content">
+                <h5>핵심 가치</h5>
+                <p>고객중심 · 혁신기술<br>지속성장 · 정직과 신뢰</p>
+            </div>
+        </div>
+        <div class="vision-item">
+            <img src="robots/images .jpg" alt="글로벌 로봇 기술" class="vision-img">
+            <div class="vision-content">
+                <h5>기술 경쟁력</h5>
+                <p>전 세계 ROBOT 기종 대응<br>(Hyundai, Kuka, ABB 등)</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="business" style="background-color: var(--light-bg);">
+    <div class="section-title">
+        <h3>사업 분야 및 기술 역량</h3>
+    </div>
+    
+    <div class="biz-grid">
+        <div class="biz-item">
+            <img src="https://img.hankyung.com/photo/202311/AA.34948980.1.jpg" alt="도장 로봇" class="biz-img">
+            <div class="biz-content">
+                <h4>도장 자동화 시스템</h4>
+                <p>ABB, FANUC, HYUNDAI 등 도장 전용 로봇을 활용한 정밀 솔루션 및 전기 시운전 턴키 공사</p>
+            </div>
+        </div>
+        <div class="biz-item">
+            <img src="https://img.freepik.com/free-photo/assembly-line-production-new-car-automated-welding-car-body-production-line-robotic-arm-car-production-line-is-working_645730-580.jpg?semt=ais_hybrid&w=740&q=80" alt="자동차 조립 라인" class="biz-img">
+            <div class="biz-content">
+                <h4>자동차 제조 공정</h4>
+                <p>차체, 의장, 엔진/변속기 라인 등 자동차 전 분야 로봇 설치 및 최적화 티칭 서비스</p>
+            </div>
+        </div>
+        <div class="biz-item">
+            <img src="https://media.finebi.com/strapi/0e65d901b87f4468a03248aa7bdbc25b_5070652e7f.webp" alt="물류 로봇" class="biz-img">
+            <div class="biz-content">
+                <h4>산업별 자동화 솔루션</h4>
+                <p>물류 팔레타이징, 전자부품 핸들링, 금속 가공 등 제조 현장 맞춤형 시스템 구축</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="tech-container">
+        <h4 class="tech-title">SUPPORTED ROBOT SYSTEMS</h4>
+        <div class="tech-grid">
+            <div class="tech-item"><img src="robots/hyundai_robot.webp" alt="HYUNDAI"><span>HYUNDAI ROBOTICS</span></div>
+            <div class="tech-item"><img src="robots/abb_robot.webp" alt="ABB"><span>ABB ROBOTICS</span></div>
+            <div class="tech-item"><img src="robots/fanuc_robot.webp" alt="FANUC"><span>FANUC</span></div>
+            <div class="tech-item"><img src="robots/kuka_robot.webp" alt="KUKA"><span>KUKA</span></div>
+            <div class="tech-item"><img src="robots/yaskawa_robot.webp" alt="YASKAWA"><span>YASKAWA</span></div>
+            <div class="tech-item"><img src="robots/kawasasi_robot.webp" alt="KAWASAKI"><span>KAWASAKI</span></div>
+            <div class="tech-item"><img src="robots/nachi_robot.webp" alt="NACHI"><span>NACHI ROBOT</span></div>
+        </div>
+    </div>
+</section>
+
+<section id="history">
+    <div class="section-title">
+        <h3>사업 실적 및 회사 연혁</h3>
+        <p style="text-align:center; color:#666; margin-top:-50px; margin-bottom:40px;">2006년부터 현재까지 하나로보텍이 걸어온 혁신의 기록입니다.</p>
+    </div>
+
+    <div class="history-wrapper">
+        <div class="history-scroll-box">
+            <div class="section-title">
+                <h3>사업 실적</h3>
+            </div>
+            <div class="year-block">
+                <div class="y-title">2024 - 2025</div>
+                <div class="y-item"><span>2025.09</span><strong>HD현대로보틱스</strong>HMC남양 프레스무빙동 NX5a 테이블탑 설치</div>
+                <div class="y-item"><span>2025.05</span><strong>현대자동차 울산</strong>울산21 LX3 로봇 설치공사 및 티칭시운전 공법변경</div>
+                <div class="y-item"><span>2025.02</span><strong>현대자동차 브라질</strong>HMB BC4b 로봇 설치 및 티칭시운전</div>
+                <div class="y-item"><span>2024.11</span><strong>현대자동차 울산</strong>울산22 차체 도어 힌지 장착 로봇설치티칭시운전</div>
+                <div class="y-item"><span>2024.08</span><strong>HD현대로보틱스</strong>HMC남양 무빙동 노후로봇 교체 공사</div>
+            </div>
+
+            <div class="year-block">
+                <div class="y-title">2023</div>
+                <div class="y-item"><span>12월</span><strong>현대차 남양연구소</strong>남양 2-A FLR 라인 로봇 설비 이설공사</div>
+                <div class="y-item"><span>11월</span><strong>HD현대로보틱스</strong>HMC자기부 남양 PDI 1동 차세대 조립라인 공사</div>
+                <div class="y-item"><span>11월</span><strong>현대차 남양연구소</strong>남양 무빙 NX4m 로봇 티칭시운전</div>
+                <div class="y-item"><span>10월</span><strong>현대자동차 울산</strong>22차체 JK EV 개조 로보트 티칭 시운전</div>
+                <div class="y-item"><span>08월</span><strong>현대차 남양연구소</strong>남양 무빙 CL4로봇 티칭 및 시운전</div>
+                <div class="y-item"><span>08월</span><strong>현대자동차 울산</strong>21차체 SIDE라인 로보트 티칭 시운전</div>
+                <div class="y-item"><span>07월</span><strong>㈜성우하이텍</strong>L234 UPPER BODY 차종 지그/전장 및 용접 설비</div>
+                <div class="y-item"><span>07월</span><strong>현대자동차 울산</strong>울산11 SX2 로봇 티칭 시운전 SCO</div>
+                <div class="y-item"><span>07월</span><strong>현대자동차 브라질</strong>HMB SU2b 개조차 로봇 설치티칭시운전</div>
+                <div class="y-item"><span>06월</span><strong>현대자동차 인도</strong>HMI1 PS7i 차체 FL 로봇 설치 및 티칭 공사</div>
+                <div class="y-item"><span>05월</span><strong>현대차 남양연구소</strong>남양 무빙 BN7r CROSS 로봇 티칭및시운전</div>
+                <div class="y-item"><span>04월</span><strong>㈜하이로보텍</strong>KaSK 2023년 하계 노후로봇 교체, 티칭 시운전</div>
+                <div class="y-item"><span>01월</span><strong>현대자동차 울산</strong>22차체 로봇 설치 공사</div>
+                <div class="y-item"><span>01월</span><strong>현대자동차 울산</strong>11차체 무빙 라인 SX2 로보트 설치 및 티칭 시운전</div>
+            </div>
+
+            <div class="year-block">
+                <div class="y-title">2022</div>
+                <div class="y-item"><span>11월</span><strong>㈜현대로보틱스</strong>2022년 KaSK 동계휴무공사 / 교육용 로보트</div>
+                <div class="y-item"><span>07월</span><strong>현대자동차 울산</strong>컨베이어 동기 도어 자동 탈착 로봇 설치 공사</div>
+                <div class="y-item"><span>07월</span><strong>현대자동차 울산</strong>울산11 SX2 FRL 로봇 티칭 설치/티칭/시운전</div>
+                <div class="y-item"><span>07월</span><strong>현대자동차 울산</strong>22차체 B/B CO2용접 로봇 철거/설치/시운전/양산</div>
+                <div class="y-item"><span>06월</span><strong>동남산기</strong>아진 미국 ON 증량 공사</div>
+                <div class="y-item"><span>05월</span><strong>㈜동희하이테크</strong>BL7m, FRT SUSP 라인 2차 슈퍼바이저(ROBOT)</div>
+                <div class="y-item"><span>05월</span><strong>㈜동희하이테크</strong>CE SUSP 라인구축 범용설비</div>
+                <div class="y-item"><span>05월</span><strong>㈜동희하이테크</strong>BL7m, FRT라인 범용설비</div>
+                <div class="y-item"><span>04월</span><strong>현대차 남양연구소</strong>남양 PDI 2동 BN7r 이설공사</div>
+                <div class="y-item"><span>02월</span><strong>현대자동차 의왕</strong>의왕연구소 로보트 이설 및 티칭</div>
+                <div class="y-item"><span>02월</span><strong>현대차 남양연구소</strong>남양 무빙 BR2 개조 차종 공사</div>
+                <div class="y-item"><span>01월</span><strong>현대피엔에스</strong>HMC 의왕 프로니우스용접기 설치 공사</div>
+            </div>
+
+            <div class="year-block">
+                <div class="y-title">2021</div>
+                <div class="y-item"><span>11월</span><strong>㈜성우하이텍</strong>ELcV 차종 로봇 설치/티칭/시운전</div>
+                <div class="y-item"><span>09월</span><strong>㈜삼우기계</strong>KCC글라스 울산산단 W/S SUB 전기시운전</div>
+                <div class="y-item"><span>09월</span><strong>㈜현대로보틱스</strong>GGM 차체 W PJT 추가 티칭/시운전</div>
+                <div class="y-item"><span>09월</span><strong>㈜성우하이텍</strong>A100차종 로봇 설치/티칭/시운전</div>
+                <div class="y-item"><span>08월</span><strong>㈜현대로보틱스</strong>HMC 2차체 노후로봇 교체 공사</div>
+                <div class="y-item"><span>08월</span><strong>현대자동차 브라질</strong>BR2 FL & GSb 무빙 AS 티칭/시운전</div>
+                <div class="y-item"><span>06월</span><strong>㈜비앤시</strong>동희하이테크 KSM 이설공사</div>
+                <div class="y-item"><span>06월</span><strong>㈜삼우기계</strong>KCC글라스 울산산단 W/S SUB 자동화제어</div>
+                <div class="y-item"><span>05월</span><strong>현대자동차 아산</strong>CE 다차종 프로젝트 설치/티칭/시운전</div>
+                <div class="y-item"><span>04월</span><strong>화신 인도 법인</strong>BI3 차종 로봇 티칭 시운전</div>
+                <div class="y-item"><span>03월</span><strong>현대자동차 의왕</strong>스테이터 제작 로보트 이설 및 티칭</div>
+                <div class="y-item"><span>03월</span><strong>현대자동차 울산</strong>US5 RR DR 롤러헤밍 티칭/시운전</div>
+                <div class="y-item"><span>01월</span><strong>신광테크</strong>㈜영진 스폿로봇 인터록 시운전</div>
+            </div>
+
+            <div class="year-block">
+                <div class="y-title">2020</div>
+                <div class="y-item"><span>12월</span><strong>신광테크</strong>㈜영진 PRESS라인 핸드링 로봇 설치/티칭/시운전</div>
+                <div class="y-item"><span>12월</span><strong>신광테크</strong>㈜영진 DN8 서브공정 이설/설치/시운전</div>
+                <div class="y-item"><span>12월</span><strong>㈜현대로보틱스</strong>HMC 울산 5차체 후드 장착자동화 로봇</div>
+                <div class="y-item"><span>11월</span><strong>㈜현대로보틱스</strong>NQ5a 국내 가설 공사 / 볼트 체결자동화 로봇</div>
+                <div class="y-item"><span>11월</span><strong>㈜화신</strong>GGM 차체 W PJT</div>
+                <div class="y-item"><span>08월</span><strong>현대자동차 브라질</strong>HMB SU2b 및 무빙 AS 로봇 설치 티칭 시운전</div>
+                <div class="y-item"><span>07월</span><strong>㈜현대로보틱스</strong>HMC 울산 2차체 TM_PE 신규 로봇 및 개조</div>
+                <div class="y-item"><span>05월</span><strong>현대자동차 울산</strong>11차체 도어힌지 장착 및 OS PE 신차 로보트 설치</div>
+                <div class="y-item"><span>05월</span><strong>현대자동차 울산</strong>31차체 CN7 / 51차체 RG3-EV / 32차체 C2 로봇 설치</div>
+                <div class="y-item"><span>04월</span><strong>현대자동차 울산</strong>ISF 기술개발 및 프로젝션 자동화 시운전</div>
+                <div class="y-item"><span>04월</span><strong>현대차 남양</strong>파이롯트 NX4(투싼) 로보트 설치 및 티칭시운전</div>
+                <div class="y-item"><span>03월</span><strong>㈜화신 미국/인도</strong>Tma PE & CN7 / BI3 차종 로봇 티칭 시운전</div>
+                <div class="y-item"><span>02월</span><strong>현대자동차 인도</strong>1차체 SU2i LWB 차체 로봇 설치 및 티칭시운전</div>
+            </div>
+
+            <div class="year-block">
+                <div class="y-title">2017 - 2018</div>
+                <div class="y-item"><span>2018.12</span><strong>㈜현대로보틱스</strong>광동이헝 스폿용 드레스팩 작업</div>
+                <div class="y-item"><span>2018.11</span><strong>현대자동차 울산</strong>울산11 코나아이언맨 / 울산3 QX 로봇 설치</div>
+                <div class="y-item"><span>2018.08</span><strong>현대자동차 울산</strong>울산 2 차체 노후로봇 교체 및 울산 12 OS HEV 설치</div>
+                <div class="y-item"><span>2018.01</span><strong>㈜현대로보틱스</strong>광동이헝 프레스 핸들링 / SALPA TIBA 232 CAPA UP</div>
+                <div class="y-item"><span>2017.12</span><strong>㈜현대로보틱스</strong>상해 이펑 길리차 부품 스폿용 / KMS BB LINE 교체</div>
+                <div class="y-item"><span>2017.10</span><strong>현대자동차 울산</strong>5공장/1공장 의장 샤시 토크 및 2공장 유연화 꼬마로봇</div>
+                <div class="y-item"><span>2017.01</span><strong>HMMC 체코</strong>PDE ROBOT FOR BODY SHOP(B/B & B/R LINE)</div>
+            </div>
+
+            <div class="year-block">
+                <div class="y-title">2011 - 2016</div>
+                <div class="y-item"><span>2016.10</span><strong>현대자동차 울산</strong>1공장 OS차종 SIDE LINE ROBOT 70대 티칭시운전</div>
+                <div class="y-item"><span>2016.04</span><strong>HMC 체코</strong>BB/BR LINE ROBOT 114대 티칭시운전</div>
+                <div class="y-item"><span>2015.01</span><strong>HMC 슬로바키아</strong>ROBOT 120대 티칭 시운전</div>
+                <div class="y-item"><span>2014.11</span><strong>HMC 북경</strong>ROBOT 82대 설치 시운전</div>
+                <div class="y-item"><span>2013.12</span><strong>HMC 터키</strong>HMC 터키 IA PJT ROBOT 138대 설치 시운전</div>
+                <div class="y-item"><span>2012.08</span><strong>㈜대성사</strong>ROBOT 55대 설치 시운전</div>
+                <div class="y-item"><span>2011.03</span><strong>㈜성우하이텍</strong>ROBOT 170대 티칭 시운전</div>
+                <div class="y-item"><span>2011.01</span><strong>㈜대성사</strong>GD ROBOT 19대 설치 시운전</div>
+            </div>
+
+            <div class="year-block">
+                <div class="y-title">2006 - 2009</div>
+                <div class="y-item"><span>2007.11</span><strong>㈜도우</strong>핸드링 ROBOT SYSTEM 시운전</div>
+                <div class="y-item"><span>2007.10</span><strong>㈜삼성자동차</strong>핸드링 ROBOT SYSTEM 시운전</div>
+                <div class="y-item"><span>2007.05</span><strong>㈜세진공업</strong>CO2 ROBOT SYSTEM 시운전</div>
+                <div class="y-item"><span>2007.04</span><strong>㈜현대자동차 울산</strong>5공장 의장 LINE 시운전</div>
+                <div class="y-item"><span>2007.04</span><strong>㈜유도스타</strong>ROBOT 사출기 핸들링 시운전 3대분</div>
+                <div class="y-item"><span>2007.03</span><strong>㈜MS 오토텍</strong>ROBOT 16대 티칭 시운전</div>
+                <div class="y-item"><span>2007.03</span><strong>㈜현대자동차 울산</strong>2공장 FEM 시운전</div>
+
+                <div class="y-item"><span>2006.11</span><strong>㈜대광정밀</strong>CO2 ROBOT 4대분 이설공사</div>
+                <div class="y-item"><span>2006.11</span><strong>㈜한텍</strong>CO2 ROBOT 1대분 신설공사</div>
+                <div class="y-item"><span>2006.10</span><strong>㈜경진단조</strong>HANDRING ROBOT SYSTEM 2대 신설공사</div>
+                <div class="y-item"><span>2006.08</span><strong>㈜현대자동차 울산</strong>TQ SIDE LINE ROBOT 24대 티칭 시운전</div>
+                <div class="y-item"><span>2006.06</span><strong>㈜테크원</strong>고속 실러장치 TEST용 ROBOT SYSTEM 신설공사</div>
+                <div class="y-item"><span>2006.05</span><strong>㈜원풍산업</strong>SPOT ROBOT SYSTEM 공사</div>
+                <div class="y-item"><span>2006.05</span><strong>㈜유성산업</strong>SPOT ROBOT SYSTEM 신설공사</div>
+                <div class="y-item"><span>2006.04</span><strong>HANAROBOT 설립</strong>본격적인 로봇 자동화 사업 개시</div>
+                <div class="y-item"><span>2006.04</span><strong>㈜일지테크</strong>ROBOT 2대 신설 공사</div>
+                <div class="y-item"><span>2006.04</span><strong>㈜대성사</strong>CM LINE 증설공사</div>
+                <div class="y-item"><span>2006.04</span><strong>㈜소하리 기아차</strong>VQ LINE 시트 장착 ROBOT SYSTEM 공사</div>
+                <div class="y-item"><span>2006.04</span><strong>㈜동희오토</strong>RR-GLASS 실러도포 ROBOT SYSTEM 공사</div>
+                <div class="y-item"><span>2006.04</span><strong>㈜이너지</strong>E-RING 삽입 ROBOT SYSTEM 공사</div>
+                <div class="y-item"><span>2006.04</span><strong>㈜현대자동차 울산</strong>EM MOV'ING LINE 공사</div>
+            </div>
+            <div class="section-title">
+                <h3>주요 연혁</h3>
+            </div>
+            <div class="corporate-history">
+                <div class="history-card-grid">
+                    <div class="history-card"><div class="h-year">2006. 04</div><div class="h-desc">달천공단 소재지 확장 이전</div></div>
+                    <div class="history-card"><div class="h-year">2008. 03</div><div class="h-desc">(주)두산 로봇자동화 협력업체 등록</div></div>
+                    <div class="history-card"><div class="h-year">2008. 04</div><div class="h-desc">울산광역시 북구 호계동 910-2 소재지 확장 이전</div></div>
+                    <div class="history-card"><div class="h-year">2009. 10</div><div class="h-desc">(주)현대자동차 협력업체 등록</div></div>
+                    <div class="history-card"><div class="h-year">2012. 07</div><div class="h-desc">(주)대성사 협력업체 등록</div></div>
+                    <div class="history-card"><div class="h-year">2020. 01</div><div class="h-desc">주식회사 성우하이텍 협력업체 등록</div></div>
+                    <div class="history-card"><div class="h-year">2022. 04</div><div class="h-desc">주식회사 동희하이테크, 동희산업 협력업체 등록</div></div>
+                    <div class="history-card"><div class="h-year">2024. 04</div><div class="h-desc">영진울산공장 협력업체 등록</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="f-container">
+        <div class="f-left">
+            <div class="f-logo"><img src="logo.png" alt="HANA ROBOTEC"></div>
+            <div class="f-info">
+                <p><b>본사:</b> 울산광역시 북구 수동 2길 (호계동)</p>
+                <p><b>TEL:</b> 052-294-9575 | <b>FAX:</b> 052-298-9575</p>
+                <p><b>사업분야:</b> 차체 로봇시스템, 공정 자동화 시운전</p>
+            </div>
+        </div>
+        <div class="f-right">
+            <p>&copy; 2026 HANAROBOTEC Co., Ltd. All Rights Reserved.</p>
+            <p style="margin-top:10px; opacity:0.5;">창의적 사고와 혁신 기술, 사회적 책임을 다 하는 기업</p>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>
