@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>공지사항</title>
+  <style>
+    body { font-family: sans-serif; margin:0; background:#f5f5f5; }
+
+    /* NAV */
+    .navbar {
+      background:#fff;
+      border-bottom:1px solid #eee;
+    }
+    .nav-inner {
+      max-width:1200px;
+      margin:0 auto;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:16px 20px;
+    }
+    .menu {
+      list-style:none;
+      display:flex;
+      gap:20px;
+    }
+    .menu a {
+      text-decoration:none;
+      color:#333;
+      font-weight:500;
+    }
+    .menu a.active {
+      color:#D97706;
+      font-weight:700;
+    }
+
+    /* CONTENT */
+    .wrap { max-width:1000px; margin:0 auto; padding:40px 20px; }
+
+    table { width:100%; background:#fff; border-collapse: collapse; }
+    th, td { padding:12px; border-bottom:1px solid #ddd; }
+    th { background:#f0f0f0; text-align:left; }
+
+    a { text-decoration:none; color:#222; }
+
+    .important { color:red; font-weight:bold; }
+
+    .pagination { margin-top:20px; text-align:center; }
+    .pagination button {
+      margin:0 4px;
+      padding:6px 10px;
+      border:1px solid #ddd;
+      background:#fff;
+      cursor:pointer;
+    }
+    .active-page { background:#333; color:#fff; }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="/index.html" class="nav-logo">
+    <img src="logo.png" width="150" alt="하나로보텍 로고">
+    </a>
+    <ul class="menu">
+      <li><a href="index.html">홈</a></li>
+      <li><a href="notice.html" class="active">공지사항</a></li>
+      <li><a href="admin.html">관리자</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="wrap">
+  <h1>공지사항</h1>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:80px">번호</th>
+        <th>제목</th>
+        <th style="width:150px">작성일</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+
+  <div id="pagination" class="pagination"></div>
+</div>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+const supabase = createClient(
+  'https://amseuvowouzqwtdjmjoq.supabase.co',
+  'sb_publishable_JbLPO53u1Odu3-1zUj9l7g_FSZTxQmv'
+);
+
+const PAGE_SIZE = 10;
+let currentPage = 1;
+
+async function load(page = 1) {
+  currentPage = page;
+
+  const { count } = await supabase
+    .from('notices')
+    .select('*', { count: 'exact', head: true })
+    .eq('is_published', true)
+    .eq('is_important', false);
+
+  const totalPages = Math.ceil(count / PAGE_SIZE);
+
+  const { data: important } = await supabase
+    .from('notices')
+    .select('*')
+    .eq('is_published', true)
+    .eq('is_important', true)
+    .order('created_at', { ascending: false });
+
+  const from = (page - 1) * PAGE_SIZE;
+  const to = from + PAGE_SIZE - 1;
+
+  const { data: normal } = await supabase
+    .from('notices')
+    .select('*')
+    .eq('is_published', true)
+    .eq('is_important', false)
+    .order('created_at', { ascending: false })
+    .range(from, to);
+
+  render([...important, ...normal], count);
+  renderPagination(totalPages);
+}
+
+function render(data, totalCount) {
+  const tbody = document.getElementById('tbody');
+
+  tbody.innerHTML = data.map((n, idx) => `
+    <tr>
+      <td>${totalCount - ((currentPage-1)*PAGE_SIZE + idx)}</td>
+      <td>
+        <a href="notice-detail.html?id=${n.id}">
+          ${n.is_important ? '<span class="important">[공지]</span> ' : ''}
+          ${n.title}
+        </a>
+      </td>
+      <td>${new Date(n.created_at).toLocaleDateString()}</td>
+    </tr>
+  `).join('');
+}
+
+function renderPagination(totalPages) {
+  const el = document.getElementById('pagination');
+
+  let html = '';
+  for (let i = 1; i <= totalPages; i++) {
+    html += `<button class="${i===currentPage?'active-page':''}" onclick="goPage(${i})">${i}</button>`;
+  }
+
+  el.innerHTML = html;
+}
+
+window.goPage = (p) => load(p);
+
+load(1);
+</script>
+
+</body>
+</html>

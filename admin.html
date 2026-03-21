@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<title>관리자 - 공지</title>
+
+<style>
+body { font-family:'Pretendard'; margin:0; background:#f4f6f8; }
+
+/* NAV */
+.navbar { background:#fff; border-bottom:1px solid #eee; }
+.nav-inner {
+  max-width:1100px; margin:0 auto;
+  display:flex; justify-content:space-between;
+  padding:16px;
+}
+
+/* 로그인 화면 */
+.auth-wrap {
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(135deg, #f4f6f8, #e9edf2);
+}
+
+.auth-card {
+  width:100%;
+  max-width:380px;
+  background:#fff;
+  padding:36px;
+  border-radius:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.08);
+}
+
+.auth-title {
+  font-size:20px;
+  font-weight:700;
+  margin-bottom:24px;
+  text-align:center;
+}
+
+.auth-input,
+.auth-btn {
+  width:100%;
+  box-sizing:border-box;
+}
+
+.auth-input {
+  width:100%;
+  padding:12px;
+  border:1px solid #ddd;
+  border-radius:8px;
+  margin-bottom:12px;
+  font-size:14px;
+}
+
+.auth-input:focus {
+  border-color:#D97706;
+  outline:none;
+}
+
+.auth-btn {
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:8px;
+  background:#D97706;
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.auth-error {
+  font-size:13px;
+  color:#d32f2f;
+  margin-bottom:10px;
+  display:none;
+}
+
+/* 관리자 영역 */
+.wrap { max-width:800px; margin:60px auto; }
+
+.card {
+  background:#fff;
+  border-radius:12px;
+  padding:24px;
+  margin-bottom:20px;
+}
+
+input, textarea {
+  width:100%;
+  padding:10px;
+  border:1px solid #ddd;
+  border-radius:6px;
+  margin-bottom:10px;
+}
+
+textarea { min-height:300px; }
+
+.btn { padding:8px 12px; border:none; cursor:pointer; border-radius:6px; }
+.btn-primary { background:#D97706; color:#fff; }
+.btn-danger { background:#444; color:#fff; }
+.btn-secondary { background:#eee; }
+
+.notice-item {
+  border-bottom:1px solid #eee;
+  padding:12px 0;
+}
+
+.hidden { display:none; }
+</style>
+</head>
+
+<body>
+
+<!-- 로그인 -->
+<div id="loginBox" class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-title">관리자 로그인</div>
+
+    <div id="errorMsg" class="auth-error">로그인 실패</div>
+
+    <input id="email" class="auth-input" placeholder="이메일">
+    <input id="password" type="password" class="auth-input" placeholder="비밀번호"
+      onkeydown="if(event.key==='Enter') login()">
+
+    <button class="auth-btn" onclick="login()">로그인</button>
+  </div>
+</div>
+
+<!-- 관리자 -->
+<div id="adminArea" class="hidden">
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <div>관리자</div>
+    <a href="notice.html">공지 보러가기</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+<!-- 에디터 -->
+<div class="card">
+  <h3 id="editorTitle">공지 작성</h3>
+
+  <input id="title" placeholder="제목">
+  <textarea id="content" placeholder="내용"></textarea>
+
+  <button class="btn btn-primary" onclick="saveNotice()">저장</button>
+  <button class="btn btn-secondary" onclick="resetForm()">초기화</button>
+  <button class="btn btn-danger" onclick="logout()">로그아웃</button>
+</div>
+
+<!-- 리스트 -->
+<div class="card">
+  <h3>공지 목록</h3>
+  <div id="list"></div>
+</div>
+
+</div>
+</div>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+const supabase = createClient(
+  'https://amseuvowouzqwtdjmjoq.supabase.co',
+  'sb_publishable_JbLPO53u1Odu3-1zUj9l7g_FSZTxQmv'
+);
+
+let editId = null;
+
+// 로그인
+window.login = async () => {
+  const errorBox = document.getElementById('errorMsg');
+  errorBox.style.display = 'none';
+
+  const { error } = await supabase.auth.signInWithPassword({
+    email: emailEl().value,
+    password: pwEl().value
+  });
+
+  if (error) {
+    errorBox.style.display = 'block';
+    return;
+  }
+
+  check();
+};
+
+// 로그아웃
+window.logout = async () => {
+  await supabase.auth.signOut();
+  location.reload();
+};
+
+// 상태 체크
+async function check() {
+  const { data } = await supabase.auth.getSession();
+
+  if (data.session) {
+    document.getElementById('loginBox').classList.add('hidden');
+    document.getElementById('adminArea').classList.remove('hidden');
+    loadList();
+  }
+}
+
+// 저장
+window.saveNotice = async () => {
+  const title = titleEl().value.trim();
+  const content = contentEl().value.trim();
+
+  if (!title || !content) return alert('입력 필요');
+
+  let error;
+
+  if (editId) {
+    ({ error } = await supabase
+      .from('notices')
+      .update({
+        title,
+        content,
+        is_important: true
+      })
+      .eq('id', editId));
+  } else {
+    ({ error } = await supabase
+      .from('notices')
+      .insert([{
+        title,
+        content,
+        is_important: true,
+        is_published: true
+      }]));
+  }
+
+  if (error) return alert('실패');
+
+  resetForm();
+  loadList();
+};
+
+// 리스트
+async function loadList() {
+  const { data } = await supabase
+    .from('notices')
+    .select('*')
+    .order('created_at', { ascending:false });
+
+  const list = listEl();
+  list.innerHTML = '';
+
+  data.forEach(n => {
+    const div = document.createElement('div');
+    div.className = 'notice-item';
+
+    div.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <div style="font-weight:600;">
+            <span style="color:#D97706;">[중요]</span> ${n.title}
+          </div>
+          <div style="font-size:12px;color:#999;">
+            ${new Date(n.created_at).toLocaleString()}
+          </div>
+        </div>
+        <div style="display:flex; gap:6px;">
+          <button onclick="editNotice(${n.id})">수정</button>
+          <button onclick="deleteNotice(${n.id})">삭제</button>
+        </div>
+      </div>
+    `;
+
+    list.appendChild(div);
+  });
+}
+
+// 삭제
+window.deleteNotice = async (id) => {
+  if (!confirm('삭제?')) return;
+
+  await supabase.from('notices').delete().eq('id', id);
+  loadList();
+};
+
+// 수정
+window.editNotice = async (id) => {
+  const { data } = await supabase
+    .from('notices')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  editId = id;
+
+  titleEl().value = data.title;
+  contentEl().value = data.content;
+
+  document.getElementById('editorTitle').innerText = '공지 수정';
+};
+
+// 초기화
+window.resetForm = () => {
+  editId = null;
+  titleEl().value = '';
+  contentEl().value = '';
+  document.getElementById('editorTitle').innerText = '공지 작성';
+};
+
+// DOM
+const emailEl = () => document.getElementById('email');
+const pwEl = () => document.getElementById('password');
+const titleEl = () => document.getElementById('title');
+const contentEl = () => document.getElementById('content');
+const listEl = () => document.getElementById('list');
+
+check();
+</script>
+
+</body>
+</html>
