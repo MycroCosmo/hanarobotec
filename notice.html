@@ -103,14 +103,7 @@ let currentPage = 1;
 async function load(page = 1) {
   currentPage = page;
 
-  const { count } = await supabase
-    .from('notices')
-    .select('*', { count: 'exact', head: true })
-    .eq('is_published', true)
-    .eq('is_important', false);
-
-  const totalPages = Math.ceil(count / PAGE_SIZE);
-
+  // 1. 중요공지 (고정)
   const { data: important } = await supabase
     .from('notices')
     .select('*')
@@ -118,6 +111,16 @@ async function load(page = 1) {
     .eq('is_important', true)
     .order('created_at', { ascending: false });
 
+  // 2. 일반공지 count
+  const { count } = await supabase
+    .from('notices')
+    .select('*', { count: 'exact', head: true })
+    .eq('is_published', true)
+    .eq('is_important', false);
+
+  const totalPages = Math.ceil((count || 0) / PAGE_SIZE);
+
+  // 3. 일반공지 페이징
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
 
@@ -129,33 +132,67 @@ async function load(page = 1) {
     .order('created_at', { ascending: false })
     .range(from, to);
 
-  render([...important, ...normal], count);
+  render(important, normal, count);
   renderPagination(totalPages);
 }
-
-function render(data, totalCount) {
+function render(important, normal, totalCount) {
   const tbody = document.getElementById('tbody');
 
-  tbody.innerHTML = data.map((n, idx) => `
-    <tr>
-      <td>${totalCount - ((currentPage-1)*PAGE_SIZE + idx)}</td>
-      <td>
-        <a href="notice-detail.html?id=${n.id}">
-          ${n.is_important ? '<span class="important">[공지]</span> ' : ''}
-          ${n.title}
-        </a>
-      </td>
-      <td>${new Date(n.created_at).toLocaleDateString()}</td>
-    </tr>
-  `).join('');
-}
+  let html = '';
 
+  // 중요공지 (번호 없음 or 고정)
+  (important || []).forEach(n => {
+    html += `
+      <tr style="background:#fff8f0;">
+        <td>공지</td>
+        <td>
+          <a href="notice-detail.html?id=${n.id}">
+            <span class="important">[중요]</span> ${n.title}
+          </a>
+        </td>
+        <td>${new Date(n.created_at).toLocaleDateString()}</td>
+      </tr>
+    `;
+  });
+
+  // 일반공지 (번호 계산)
+  (normal || []).forEach((n, idx) => {
+    const number = totalCount - ((currentPage - 1) * PAGE_SIZE + idx);
+
+    html += `
+      <tr>
+        <td>${number}</td>
+        <td>
+          <a href="notice-detail.html?id=${n.id}">
+            ${n.title}
+          </a>
+        </td>
+        <td>${new Date(n.created_at).toLocaleDateString()}</td>
+      </tr>
+    `;
+  });
+
+  tbody.innerHTML = html;
+}
 function renderPagination(totalPages) {
   const el = document.getElementById('pagination');
 
+  const max = 5;
+  let start = Math.max(1, currentPage - 2);
+  let end = Math.min(totalPages, start + max - 1);
+
   let html = '';
-  for (let i = 1; i <= totalPages; i++) {
+
+  if (currentPage > 1) {
+    html += `<button onclick="goPage(${currentPage-1})">이전</button>`;
+  }
+
+  for (let i = start; i <= end; i++) {
     html += `<button class="${i===currentPage?'active-page':''}" onclick="goPage(${i})">${i}</button>`;
+  }
+
+  if (currentPage < totalPages) {
+    html += `<button onclick="goPage(${currentPage+1})">다음</button>`;
   }
 
   el.innerHTML = html;
