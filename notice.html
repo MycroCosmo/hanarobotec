@@ -39,21 +39,57 @@
 
     table { width:100%; background:#fff; border-collapse: collapse; }
     th, td { padding:12px; border-bottom:1px solid #ddd; }
-    th { background:#f0f0f0; text-align:left; }
+    th { background:#FFF3B0; text-align:left; }
 
     a { text-decoration:none; color:#222; }
 
     .important { color:red; font-weight:bold; }
 
+    /* pagination */
     .pagination { margin-top:20px; text-align:center; }
+
     .pagination button {
       margin:0 4px;
       padding:6px 10px;
       border:1px solid #ddd;
       background:#fff;
       cursor:pointer;
+      border-radius:6px;
+      transition:all 0.2s ease;
     }
-    .active-page { background:#333; color:#fff; }
+
+    .pagination button:hover {
+      background:#f1f5f9;
+    }
+
+    .active-page {
+      background:#d97706;
+      color:#92400e;
+      border-color:#d97706;
+      font-weight:600;
+    }
+
+    /* spinner */
+    .spinner {
+      position: fixed;
+      top:50%;
+      left:50%;
+      transform:translate(-50%, -50%);
+      width:40px;
+      height:40px;
+      border:4px solid #eee;
+      border-top:4px solid #d97706;
+      border-radius:50%;
+      animation:spin 0.8s linear infinite;
+      z-index:999;
+    }
+
+    @keyframes spin {
+      0% { transform:translate(-50%, -50%) rotate(0deg); }
+      100% { transform:translate(-50%, -50%) rotate(360deg); }
+    }
+
+    .hidden { display:none; }
   </style>
 </head>
 <body>
@@ -61,8 +97,8 @@
 <!-- NAV -->
 <nav class="navbar">
   <div class="nav-inner">
-    <a href="/index.html" class="nav-logo">
-    <img src="logo.png" width="150" alt="하나로보텍 로고">
+    <a href="/index.html">
+      <img src="logo.png" width="150" alt="로고">
     </a>
     <ul class="menu">
       <li><a href="index.html">홈</a></li>
@@ -89,6 +125,9 @@
   <div id="pagination" class="pagination"></div>
 </div>
 
+<!-- 🔥 스피너 -->
+<div id="spinner" class="spinner hidden"></div>
+
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
@@ -100,54 +139,66 @@ const supabase = createClient(
 const PAGE_SIZE = 10;
 let currentPage = 1;
 
+function showSpinner() {
+  document.getElementById('spinner').classList.remove('hidden');
+}
+
+function hideSpinner() {
+  document.getElementById('spinner').classList.add('hidden');
+}
+
 async function load(page = 1) {
   currentPage = page;
 
-  // 1. 중요공지 (고정)
-  const { data: important } = await supabase
-    .from('notices')
-    .select('*')
-    .eq('is_published', true)
-    .eq('is_important', true)
-    .order('created_at', { ascending: false });
+  showSpinner();
 
-  // 2. 일반공지 count
-  const { count } = await supabase
-    .from('notices')
-    .select('*', { count: 'exact', head: true })
-    .eq('is_published', true)
-    .eq('is_important', false);
+  try {
+    const { data: important } = await supabase
+      .from('notices')
+      .select('*')
+      .eq('is_published', true)
+      .eq('is_important', true)
+      .order('created_at', { ascending: false });
 
-  const totalPages = Math.ceil((count || 0) / PAGE_SIZE);
+    const { count } = await supabase
+      .from('notices')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_published', true)
+      .eq('is_important', false);
 
-  // 3. 일반공지 페이징
-  const from = (page - 1) * PAGE_SIZE;
-  const to = from + PAGE_SIZE - 1;
+    const totalPages = Math.ceil((count || 0) / PAGE_SIZE);
 
-  const { data: normal } = await supabase
-    .from('notices')
-    .select('*')
-    .eq('is_published', true)
-    .eq('is_important', false)
-    .order('created_at', { ascending: false })
-    .range(from, to);
+    const from = (page - 1) * PAGE_SIZE;
+    const to = from + PAGE_SIZE - 1;
 
-  render(important, normal, count);
-  renderPagination(totalPages);
+    const { data: normal } = await supabase
+      .from('notices')
+      .select('*')
+      .eq('is_published', true)
+      .eq('is_important', false)
+      .order('created_at', { ascending: false })
+      .range(from, to);
+
+    render(important, normal, count);
+    renderPagination(totalPages);
+
+  } finally {
+    hideSpinner();
+  }
 }
+
 function render(important, normal, totalCount) {
   const tbody = document.getElementById('tbody');
 
   let html = '';
 
-  // 중요공지 (번호 없음 or 고정)
   (important || []).forEach(n => {
     html += `
-      <tr style="background:#fff8f0;">
+      <tr>
         <td>공지</td>
         <td>
-          <a href="notice-detail.html?id=${n.id}">
-            <span class="important">[중요]</span> ${n.title}
+          <a href="notice-detail.html?id=${n.id}" style="font-weight:700;">
+            ${n.title}
           </a>
         </td>
         <td>${new Date(n.created_at).toLocaleDateString()}</td>
@@ -155,7 +206,6 @@ function render(important, normal, totalCount) {
     `;
   });
 
-  // 일반공지 (번호 계산)
   (normal || []).forEach((n, idx) => {
     const number = totalCount - ((currentPage - 1) * PAGE_SIZE + idx);
 
@@ -174,6 +224,7 @@ function render(important, normal, totalCount) {
 
   tbody.innerHTML = html;
 }
+
 function renderPagination(totalPages) {
   const el = document.getElementById('pagination');
 
