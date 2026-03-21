@@ -51,6 +51,7 @@ body {
   border:1px solid #ddd;
   border-radius:8px;
   margin-bottom:12px;
+  box-sizing:border-box;
 }
 .auth-btn {
   width:100%;
@@ -87,6 +88,7 @@ body {
   border-radius:12px;
   padding:24px;
   margin-bottom:20px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.04);
 }
 
 input, textarea {
@@ -95,12 +97,14 @@ input, textarea {
   border:1px solid #ddd;
   border-radius:6px;
   margin-bottom:10px;
+  box-sizing:border-box;
 }
 textarea {
   min-height:300px;
+  resize:vertical;
 }
 
-/* 🔥 토글 스위치 */
+/* 토글 스위치 */
 .toggle-wrap {
   display:flex;
   justify-content:flex-end;
@@ -160,14 +164,23 @@ textarea {
   border:none;
   cursor:pointer;
   border-radius:6px;
+  transition:all 0.2s ease;
 }
 .btn-primary { background:#d97706; color:#fff; }
-.btn-secondary { background:#eee; }
+.btn-primary:hover { background:#b45309; }
+
+.btn-secondary { background:#eee; color:#333; }
+.btn-secondary:hover { background:#ddd; }
+
 .btn-danger { background:#444; color:#fff; }
+.btn-danger:hover { background:#222; }
 
 .notice-item {
   border-bottom:1px solid #eee;
   padding:12px 0;
+}
+.notice-item:last-child {
+  border-bottom:none;
 }
 
 .badge-important {
@@ -183,7 +196,7 @@ textarea {
   display:flex;
   gap:6px;
 }
-/* 기존 버튼 유지 */
+
 .btn-sm {
   padding:5px 8px;
   font-size:12px;
@@ -193,48 +206,112 @@ textarea {
   transition:all 0.2s ease;
 }
 
-/* ✏️ 수정 버튼 */
 .btn-edit {
   background:#e0f2fe;
   color:#0369a1;
 }
-
 .btn-edit:hover {
   background:#bae6fd;
 }
 
-/* 🗑 삭제 버튼 */
 .btn-delete {
   background:#fee2e2;
   color:#b91c1c;
 }
-
 .btn-delete:hover {
   background:#fecaca;
 }
 
-.hidden { display:none; }
+.hidden { display:none !important; }
 
 .nav-inner a {
-  text-decoration: none;   /* 밑줄 제거 */
-  color: #333;             /* 기본 텍스트 색 */
-
+  text-decoration: none;
+  color: #333;
   padding: 8px 12px;
   border-radius: 6px;
   background: #f1f5f9;
-
   font-size: 14px;
   transition: all 0.2s ease;
 }
-
-/* hover 효과 */
 .nav-inner a:hover {
   background: #e2e8f0;
 }
-
-/* 클릭 시 */
 .nav-inner a:active {
   background: #cbd5f5;
+}
+
+/* 에디터 헤더 */
+.editor-head {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  margin-bottom:14px;
+}
+.editor-status {
+  font-size:13px;
+  color:#d97706;
+  font-weight:600;
+}
+
+/* 확인 모달 */
+.modal-backdrop {
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.35);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9998;
+}
+.modal {
+  width:100%;
+  max-width:360px;
+  background:#fff;
+  border-radius:14px;
+  padding:24px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.15);
+}
+.modal-title {
+  font-size:18px;
+  font-weight:700;
+  margin-bottom:10px;
+}
+.modal-desc {
+  font-size:14px;
+  color:#555;
+  line-height:1.5;
+  margin-bottom:20px;
+}
+.modal-actions {
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+}
+
+/* 토스트 */
+.toast-wrap {
+  position:fixed;
+  top:24px;
+  right:24px;
+  z-index:9999;
+}
+.toast {
+  min-width:220px;
+  background:#111827;
+  color:#fff;
+  padding:14px 16px;
+  border-radius:10px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.15);
+  font-size:14px;
+}
+
+/* 페이지 버튼 영역 */
+.pagination-wrap {
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  margin-top:20px;
 }
 </style>
 </head>
@@ -249,9 +326,13 @@ textarea {
     <div id="errorMsg" class="auth-error">로그인 실패</div>
 
     <input id="email" class="auth-input" placeholder="이메일" />
-    <input id="password" type="password" class="auth-input"
+    <input
+      id="password"
+      type="password"
+      class="auth-input"
       placeholder="비밀번호"
-      onkeydown="if(event.key==='Enter') login();" />
+      onkeydown="if(event.key==='Enter') login();"
+    />
 
     <button class="auth-btn" onclick="login()">로그인</button>
     <button class="auth-back" onclick="goBack()">돌아가기</button>
@@ -271,12 +352,14 @@ textarea {
 
     <!-- 에디터 -->
     <div class="card">
-      <h3 id="editorTitle">공지 작성</h3>
+      <div class="editor-head">
+        <h3 id="editorTitle" style="margin:0;">공지 작성</h3>
+        <div id="editorStatus" class="editor-status hidden">수정 중</div>
+      </div>
 
       <input id="title" placeholder="제목" />
       <textarea id="content" placeholder="내용"></textarea>
 
-      <!-- 🔥 토글 -->
       <div class="toggle-wrap">
         <span>중요 공지</span>
         <label class="switch">
@@ -285,7 +368,7 @@ textarea {
         </label>
       </div>
 
-      <button class="btn btn-primary" onclick="saveNotice()">저장</button>
+      <button class="btn btn-primary" onclick="openSaveConfirm()">저장</button>
       <button class="btn btn-secondary" onclick="resetForm()">초기화</button>
       <button class="btn btn-danger" onclick="logout()">로그아웃</button>
     </div>
@@ -295,13 +378,30 @@ textarea {
       <h3>공지 목록</h3>
       <div id="list"></div>
 
-      <div style="display:flex; justify-content:center; gap:10px; margin-top:20px;">
+      <div class="pagination-wrap">
         <button class="btn btn-secondary" onclick="prevPage()">이전</button>
         <button class="btn btn-secondary" onclick="nextPage()">다음</button>
       </div>
     </div>
 
   </div>
+</div>
+
+<!-- 저장 확인 모달 -->
+<div id="confirmModal" class="modal-backdrop hidden">
+  <div class="modal">
+    <div class="modal-title">저장 확인</div>
+    <div class="modal-desc" id="confirmMessage">공지사항을 저장하시겠습니까?</div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeSaveConfirm()">취소</button>
+      <button class="btn btn-primary" onclick="confirmSaveNotice()">확인</button>
+    </div>
+  </div>
+</div>
+
+<!-- 토스트 -->
+<div id="toastWrap" class="toast-wrap hidden">
+  <div id="toastMessage" class="toast">저장되었습니다.</div>
 </div>
 
 <script type="module">
@@ -315,6 +415,7 @@ const supabase = createClient(
 let editId = null;
 let page = 0;
 const pageSize = 10;
+let toastTimer = null;
 
 window.login = async () => {
   const errorBox = document.getElementById("errorMsg");
@@ -349,12 +450,37 @@ async function check() {
   }
 }
 
-window.saveNotice = async () => {
+window.openSaveConfirm = () => {
+  const title = titleEl().value.trim();
+  const content = contentEl().value.trim();
+
+  if (!title || !content) {
+    alert("입력 필요");
+    return;
+  }
+
+  confirmMessageEl().textContent = editId
+    ? "공지사항을 수정 저장하시겠습니까?"
+    : "공지사항을 저장하시겠습니까?";
+
+  confirmModalEl().classList.remove("hidden");
+};
+
+window.closeSaveConfirm = () => {
+  confirmModalEl().classList.add("hidden");
+};
+
+window.confirmSaveNotice = async () => {
+  closeSaveConfirm();
+
   const title = titleEl().value.trim();
   const content = contentEl().value.trim();
   const important = importantEl().checked;
 
-  if (!title || !content) return alert("입력 필요");
+  if (!title || !content) {
+    alert("입력 필요");
+    return;
+  }
 
   let error;
 
@@ -364,16 +490,22 @@ window.saveNotice = async () => {
       .update({ title, content, is_important: important })
       .eq("id", editId));
   } else {
-    ({ error } = await supabase.from("notices").insert([{
-      title,
-      content,
-      is_important: important,
-      is_published: true,
-    }]));
+    ({ error } = await supabase
+      .from("notices")
+      .insert([{
+        title,
+        content,
+        is_important: important,
+        is_published: true,
+      }]));
   }
 
-  if (error) return alert("실패");
+  if (error) {
+    alert("실패");
+    return;
+  }
 
+  showToast("저장되었습니다.");
   resetForm();
   loadList();
 };
@@ -388,17 +520,17 @@ async function loadList() {
   const list = listEl();
   list.innerHTML = "";
 
-  data.forEach(n => {
+  (data || []).forEach(n => {
     const div = document.createElement("div");
     div.className = "notice-item";
 
     div.innerHTML = `
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <div>
-          <div style="font-weight:600;">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+        <div style="min-width:0;">
+          <div style="font-weight:600; word-break:break-all;">
             ${n.is_important ? '<span class="badge-important">중요</span>' : ''} ${n.title}
           </div>
-          <div style="font-size:12px;color:#999;">
+          <div style="font-size:12px;color:#999; margin-top:4px;">
             ${new Date(n.created_at).toLocaleString()}
           </div>
         </div>
@@ -413,8 +545,9 @@ async function loadList() {
 }
 
 window.deleteNotice = async (id) => {
-  if (!confirm("삭제?")) return;
+  if (!confirm("삭제하시겠습니까?")) return;
   await supabase.from("notices").delete().eq("id", id);
+  showToast("삭제되었습니다.");
   loadList();
 };
 
@@ -425,10 +558,17 @@ window.editNotice = async (id) => {
     .eq("id", id)
     .single();
 
+  if (!data) return;
+
   editId = id;
   titleEl().value = data.title;
   contentEl().value = data.content;
   importantEl().checked = data.is_important;
+
+  editorTitleEl().textContent = "공지 수정";
+  editorStatusEl().classList.remove("hidden");
+
+  window.scrollTo(0, 0);
 };
 
 window.resetForm = () => {
@@ -436,7 +576,21 @@ window.resetForm = () => {
   titleEl().value = "";
   contentEl().value = "";
   importantEl().checked = false;
+
+  editorTitleEl().textContent = "공지 작성";
+  editorStatusEl().classList.add("hidden");
 };
+
+function showToast(message) {
+  toastMessageEl().textContent = message;
+  toastWrapEl().classList.remove("hidden");
+
+  if (toastTimer) clearTimeout(toastTimer);
+
+  toastTimer = setTimeout(() => {
+    toastWrapEl().classList.add("hidden");
+  }, 2000);
+}
 
 const emailEl = () => document.getElementById("email");
 const pwEl = () => document.getElementById("password");
@@ -447,9 +601,24 @@ const listEl = () => document.getElementById("list");
 const loginBox = () => document.getElementById("loginBox");
 const adminArea = () => document.getElementById("adminArea");
 const listBox = () => document.getElementById("listBox");
+const confirmModalEl = () => document.getElementById("confirmModal");
+const confirmMessageEl = () => document.getElementById("confirmMessage");
+const toastWrapEl = () => document.getElementById("toastWrap");
+const toastMessageEl = () => document.getElementById("toastMessage");
+const editorTitleEl = () => document.getElementById("editorTitle");
+const editorStatusEl = () => document.getElementById("editorStatus");
 
-window.nextPage = () => { page++; loadList(); };
-window.prevPage = () => { if(page>0){ page--; loadList(); } };
+window.nextPage = () => {
+  page++;
+  loadList();
+};
+
+window.prevPage = () => {
+  if (page > 0) {
+    page--;
+    loadList();
+  }
+};
 
 window.goBack = () => {
   if (document.referrer) history.back();
