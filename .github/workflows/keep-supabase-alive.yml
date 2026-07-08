@@ -7,14 +7,11 @@ on:
 
 permissions:
   actions: write
-  contents: write
 
 jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
       - name: Ping Supabase
         run: |
           curl -fsS \
@@ -26,6 +23,9 @@ jobs:
           SUPABASE_URL: https://amseuvowouzqwtdjmjoq.supabase.co
           SUPABASE_KEY: sb_publishable_JbLPO53u1Odu3-1zUj9l7g_FSZTxQmv
 
-      # 저장소가 60일간 커밋이 없으면 GitHub이 스케줄 워크플로우를 비활성화하므로 자동 갱신
+      # 저장소가 60일간 커밋이 없으면 GitHub이 스케줄 워크플로우를 비활성화하므로
+      # 워크플로우 enable API를 호출해 비활성화 타이머를 리셋
       - name: Keep workflow alive
-        uses: gautamkrishnar/keepalive-workflow@v2
+        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/keep-supabase-alive.yml/enable"
+        env:
+          GH_TOKEN: ${{ github.token }}
