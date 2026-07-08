@@ -22,6 +22,7 @@ body {
   display:flex;
   justify-content:space-between;
   padding:16px;
+  align-items:center;
 }
 
 /* 로그인 */
@@ -165,15 +166,31 @@ textarea {
   cursor:pointer;
   border-radius:6px;
   transition:all 0.2s ease;
+  font-size:14px;
 }
-.btn-primary { background:#d97706; color:#fff; }
-.btn-primary:hover { background:#b45309; }
+.btn-primary {
+  background:#d97706;
+  color:#fff;
+}
+.btn-primary:hover {
+  background:#b45309;
+}
 
-.btn-secondary { background:#eee; color:#333; }
-.btn-secondary:hover { background:#ddd; }
+.btn-secondary {
+  background:#eee;
+  color:#333;
+}
+.btn-secondary:hover {
+  background:#ddd;
+}
 
-.btn-danger { background:#444; color:#fff; }
-.btn-danger:hover { background:#222; }
+.btn-danger {
+  background:#444;
+  color:#fff;
+}
+.btn-danger:hover {
+  background:#222;
+}
 
 .notice-item {
   border-bottom:1px solid #eee;
@@ -222,22 +239,24 @@ textarea {
   background:#fecaca;
 }
 
-.hidden { display:none !important; }
+.hidden {
+  display:none !important;
+}
 
 .nav-inner a {
-  text-decoration: none;
-  color: #333;
-  padding: 8px 12px;
-  border-radius: 6px;
-  background: #f1f5f9;
-  font-size: 14px;
-  transition: all 0.2s ease;
+  text-decoration:none;
+  color:#333;
+  padding:8px 12px;
+  border-radius:6px;
+  background:#f1f5f9;
+  font-size:14px;
+  transition:all 0.2s ease;
 }
 .nav-inner a:hover {
-  background: #e2e8f0;
+  background:#e2e8f0;
 }
 .nav-inner a:active {
-  background: #cbd5f5;
+  background:#cbd5f5;
 }
 
 /* 에디터 헤더 */
@@ -306,12 +325,17 @@ textarea {
   font-size:14px;
 }
 
-/* 페이지 버튼 영역 */
+/* 페이지네이션 */
 .pagination-wrap {
   display:flex;
   justify-content:center;
-  gap:10px;
+  align-items:center;
+  gap:8px;
   margin-top:20px;
+  flex-wrap:wrap;
+}
+.pagination-wrap .btn {
+  min-width:40px;
 }
 </style>
 </head>
@@ -377,11 +401,7 @@ textarea {
     <div id="listBox" class="card hidden">
       <h3>공지 목록</h3>
       <div id="list"></div>
-
-      <div class="pagination-wrap">
-        <button class="btn btn-secondary" onclick="prevPage()">이전</button>
-        <button class="btn btn-secondary" onclick="nextPage()">다음</button>
-      </div>
+      <div id="pagination" class="pagination-wrap"></div>
     </div>
 
   </div>
@@ -507,20 +527,39 @@ window.confirmSaveNotice = async () => {
 
   showToast("저장되었습니다.");
   resetForm();
+  page = 0;
   loadList();
 };
 
 async function loadList() {
+  const { count } = await supabase
+    .from("notices")
+    .select("*", { count: "exact", head: true });
+
+  const totalPages = Math.ceil((count || 0) / pageSize);
+
+  if (totalPages > 0 && page > totalPages - 1) {
+    page = totalPages - 1;
+  }
+  if (page < 0) {
+    page = 0;
+  }
+
   const { data } = await supabase
     .from("notices")
     .select("*")
     .order("created_at", { ascending: false })
     .range(page * pageSize, (page + 1) * pageSize - 1);
 
+  renderList(data || []);
+  renderPagination(totalPages);
+}
+
+function renderList(data) {
   const list = listEl();
   list.innerHTML = "";
 
-  (data || []).forEach(n => {
+  data.forEach(n => {
     const div = document.createElement("div");
     div.className = "notice-item";
 
@@ -542,7 +581,57 @@ async function loadList() {
     `;
     list.appendChild(div);
   });
+
+  if (data.length === 0) {
+    list.innerHTML = `<div style="padding:16px 0; color:#777;">등록된 공지가 없습니다.</div>`;
+  }
 }
+
+function renderPagination(totalPages) {
+  const container = paginationEl();
+
+  if (totalPages <= 1) {
+    container.innerHTML = "";
+    return;
+  }
+
+  const max = 5;
+  let start = Math.max(0, page - 2);
+  let end = start + max;
+
+  if (end > totalPages) {
+    end = totalPages;
+    start = Math.max(0, end - max);
+  }
+
+  let html = "";
+
+  if (page > 0) {
+    html += `<button class="btn btn-secondary" onclick="goPage(${page - 1})">이전</button>`;
+  }
+
+  for (let i = start; i < end; i++) {
+    html += `
+      <button
+        class="btn ${i === page ? "btn-primary" : "btn-secondary"}"
+        onclick="goPage(${i})"
+      >
+        ${i + 1}
+      </button>
+    `;
+  }
+
+  if (page < totalPages - 1) {
+    html += `<button class="btn btn-secondary" onclick="goPage(${page + 1})">다음</button>`;
+  }
+
+  container.innerHTML = html;
+}
+
+window.goPage = (p) => {
+  page = p;
+  loadList();
+};
 
 window.deleteNotice = async (id) => {
   if (!confirm("삭제하시겠습니까?")) return;
@@ -598,6 +687,7 @@ const titleEl = () => document.getElementById("title");
 const contentEl = () => document.getElementById("content");
 const importantEl = () => document.getElementById("important");
 const listEl = () => document.getElementById("list");
+const paginationEl = () => document.getElementById("pagination");
 const loginBox = () => document.getElementById("loginBox");
 const adminArea = () => document.getElementById("adminArea");
 const listBox = () => document.getElementById("listBox");
@@ -607,18 +697,6 @@ const toastWrapEl = () => document.getElementById("toastWrap");
 const toastMessageEl = () => document.getElementById("toastMessage");
 const editorTitleEl = () => document.getElementById("editorTitle");
 const editorStatusEl = () => document.getElementById("editorStatus");
-
-window.nextPage = () => {
-  page++;
-  loadList();
-};
-
-window.prevPage = () => {
-  if (page > 0) {
-    page--;
-    loadList();
-  }
-};
 
 window.goBack = () => {
   if (document.referrer) history.back();
